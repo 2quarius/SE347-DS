@@ -1,4 +1,7 @@
 # Lab1 Reliable Data Transport Protocol
+- Name: `sixplus`
+- Student ID: `517021911048`
+- Email: `sixplus@sjtu.edu.cn`
 ## Corruption
 There are two methods error detection and error correction to solve data corruption and I chose `error detection` and `retransmit`. For error detection, there are many ways to achieve the goal, so I just pick up the CRC-32 whose polynomial representation is $x^{32}+x^{26}+x^{23}+x^{22}+x^{16}+x^{12}+x^{11}+x^{10}+x^{8}+x^{7}+x^{5}+x^{4}+x^{2}+x+1$.
 
