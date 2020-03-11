@@ -416,14 +416,14 @@ int main(int argc, char *argv[])
     /* test the random number generator */
     double randtest_sum = 0.0;
     for (int i=0; i<1000; i++)
-	randtest_sum += myrandom();
+	    randtest_sum += myrandom();
     double randtest_avg = randtest_sum/1000;
     if (randtest_avg<0.25 || randtest_avg>0.75) {
-	fprintf(stderr, 
-		"It appears that something is wrong with the random number.\n"
-		"Please try to run this again.\n"  
-		"Please report to me if the problem PERSISTS.\n");
-	exit(-1);
+        fprintf(stderr, 
+            "It appears that something is wrong with the random number.\n"
+            "Please try to run this again.\n"  
+            "Please report to me if the problem PERSISTS.\n");
+        exit(-1);
     }
 
     /* intialize the sender and the receiver */

@@ -1,7 +1,8 @@
-#include "crc32.h"
+#include "rdt_protocol.h"
 #include <string.h>
+#include <iostream>
 
-#define TRAILER_SIZE 4
+#define TRAILER_BYTES 4
 
 static const unsigned int crc32tab[] = {
  0x00000000L, 0x77073096L, 0xee0e612cL, 0x990951baL,
@@ -70,7 +71,7 @@ static const unsigned int crc32tab[] = {
  0xb40bbe37L, 0xc30c8ea1L, 0x5a05df1bL, 0x2d02ef8dL
 };
 
-int crc32(const char *buf, unsigned int size)
+static unsigned int crc32(const char *buf, unsigned int size)
 {
     unsigned int i, crc;
     crc = 0xFFFFFFFF;
@@ -79,14 +80,19 @@ int crc32(const char *buf, unsigned int size)
     return crc^0xFFFFFFFF;
 }
 
-void crc32_padding(char* dest, char* src, unsigned int size) 
+void crc32_padding(packet *pkt) 
 {
-	memcpy(dest, src, size);
-    int trailer = crc32(src, size);
-    if(sizeof(trailer)==TRAILER_SIZE) {
-        memcpy(dest, &trailer, sizeof(trailer));
-    }
-    else {
-        memcpy(dest, ((char *)(&trailer))+sizeof(trailer)-TRAILER_SIZE, TRAILER_SIZE);
-    }
+    ASSERT(pkt);
+    
+    unsigned int trailer = crc32(pkt->data, RDT_HEADER_SIZE+RDT_MAX_PAYLOAD_SIZE);
+    memcpy(pkt->data+RDT_HEADER_SIZE+RDT_MAX_PAYLOAD_SIZE, (char*)&trailer, RDT_FOOTER_SIZE);
+}
+
+bool crc32_check(packet *pkt)
+{
+    ASSERT(pkt);
+
+    unsigned int actual = *(unsigned int*)(pkt->data+RDT_HEADER_SIZE+RDT_MAX_PAYLOAD_SIZE);
+    unsigned int expected = crc32(pkt->data, RDT_HEADER_SIZE+RDT_MAX_PAYLOAD_SIZE);
+    return actual==expected;
 }
