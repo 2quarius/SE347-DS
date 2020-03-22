@@ -301,7 +301,7 @@ constructUDP(struct Packet *packet)
 
 ### 2.Write a DPDK application to construct and send UDP packets.  
 
-![image-20200322182904582](./image-20200322182904582.png)
+![image-20200322182904582](./images/image-20200322182904582.png)
 
 - ether_hdr-Destination:
 
