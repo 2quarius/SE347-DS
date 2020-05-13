@@ -1,3 +1,6 @@
+*.idea
+*/.idea
+*/*/.idea
 *.DS_Store
 *.tar.gz
 *.vscode
