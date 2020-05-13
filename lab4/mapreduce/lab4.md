@@ -184,3 +184,38 @@ public class WordCount {
             e.printStackTrace();
         }
 ```
+## Part V Inverted index generation (optional, as bonus)
+```java
+public class InvertedIndex {
+
+    public static List<KeyValue> mapFunc(String file, String value) {
+        // Your code here (Part V)
+        Pattern compile = Pattern.compile("[a-zA-Z0-9]+");
+        Matcher matcher = compile.matcher(value);
+
+        List<KeyValue> kvs = new ArrayList<>();
+        while(matcher.find()) {
+            kvs.add(new KeyValue(matcher.group(),file));
+        }
+        return kvs;
+    }
+
+    public static String reduceFunc(String key, String[] values) {
+        //  Your code here (Part V)
+        Set<String> distinctValues = new HashSet<>();
+        for(String s : values) {
+            if(!distinctValues.contains(s)) {
+                distinctValues.add(s);
+            }
+        }
+        StringBuilder sb = new StringBuilder(" ");
+        for(String s : distinctValues) {
+            sb.append(s);
+            sb.append(',');
+        }
+        sb.insert(0, distinctValues.size());
+        sb.deleteCharAt(sb.lastIndexOf(","));
+        return sb.toString();
+    }
+}
+```
