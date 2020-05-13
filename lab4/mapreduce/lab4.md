@@ -96,3 +96,91 @@ class Reducer {
 }
 ```
 ## Part II Single-worker word count
+```java
+public class WordCount {
+
+    public static List<KeyValue> mapFunc(String file, String value) {
+        // Your code here (Part II)
+        Pattern compile = Pattern.compile("[a-zA-Z0-9]+");
+        Matcher matcher = compile.matcher(value);
+
+        List<KeyValue> kvs = new ArrayList<>();
+        while(matcher.find()) {
+            kvs.add(new KeyValue(matcher.group(),"1"));
+        }
+       return kvs;
+    }
+
+    public static String reduceFunc(String key, String[] values) {
+        // Your code here (Part II)
+        Integer sum = 0;
+        for(String s : values) {
+            sum += Integer.valueOf(s);
+        }
+        return sum.toString();
+    }
+}
+```
+## Part III Distributing MapReduce tasks
+```java
+        // assign tasks to registered workers and wait until all works have been done
+        // if one/some of workers finished but task remains reassign
+        CountDownLatch latch = new CountDownLatch(nTasks);
+        for(int i = 0; i<nTasks; i++) {
+            final int idx = i, other = nOther;
+            new Thread() {
+                public void run() {
+                    try {
+                        String addr = registerChan.read();
+                        Call.getWorkerRpcService(addr).doTask(new DoTaskArgs(jobName, mapFiles[idx], phase, idx, other));
+                        registerChan.write(addr);
+                        latch.countDown();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }.start();
+        }
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+```
+
+### Part IV Handling worker failures
+```java
+        CountDownLatch latch = new CountDownLatch(nTasks);
+        List<Thread> threads = new ArrayList<>();
+        for(int i = 0; i<nTasks; i++) {
+            final int idx = i, other = nOther;
+            Thread thread = new Thread() {
+                public void run() {
+                    while (true) {
+                        try {
+                            String addr = registerChan.read();
+                            Call.getWorkerRpcService(addr).doTask(new DoTaskArgs(jobName, mapFiles[idx], phase, idx, other));
+                            registerChan.write(addr);
+                            latch.countDown();
+                            break;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            };
+            threads.add(thread);
+            thread.start();
+        }
+        try {
+            Thread.sleep(1000);
+            for(Thread t:threads) {
+                if (t.getState()== Thread.State.BLOCKED) {
+                    t.interrupt();
+                }
+            }
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+```
